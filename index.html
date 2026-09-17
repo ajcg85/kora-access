@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kora Access — Control de acceso con pases verificados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101826;
+    --ink-soft:#1c2636;
+    --paper:#f1f2ee;
+    --paper-dim:#e7e8e2;
+    --emerald:#1b5e4a;
+    --copper:#9c6b30;
+    --line:#d8dad6;
+    --line-dark:#2a3446;
+    --text-on-paper:#171d14;
+    --text-muted:#5a6058;
+    --text-on-ink:#eef0ea;
+    --text-on-ink-muted:#a9b0b8;
+    --max:1180px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'IBM Plex Sans', sans-serif;
+    background:var(--paper);
+    color:var(--text-on-paper);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Fraunces', serif; font-weight:500; letter-spacing:-0.01em;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:var(--max); margin:0 auto; padding:0 32px;}
+  @media(max-width:640px){.wrap{padding:0 20px;}}
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(241,242,238,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:72px;}
+  .brand{font-family:'Fraunces', serif; font-size:24px; font-style:normal; font-weight:500; color:var(--text-on-paper); display:flex; align-items:center; gap:12px; letter-spacing:-0.01em;}
+  .brand img{height:52px; width:auto; display:block;}
+  @media(max-width:640px){.brand{font-size:19px;} .brand img{height:40px;}}
+  .hero-logo{height:104px; width:auto; display:block; margin-bottom:26px; filter:drop-shadow(0 2px 14px rgba(0,0,0,0.35)); opacity:0; transform:translateY(14px); animation:rise 0.9s cubic-bezier(.2,.7,.2,1) 0.05s forwards;}
+  @media(max-width:640px){.hero-logo{height:72px; margin-bottom:20px;}}
+  .navlinks{display:flex; gap:32px; font-size:15px; color:var(--text-muted);}
+  .navlinks a:hover{color:var(--text-on-paper);}
+  .nav-cta{
+    background:var(--ink); color:var(--text-on-ink);
+    padding:10px 20px; border-radius:2px; font-size:14px; font-weight:500;
+  }
+  @media(max-width:800px){.navlinks{display:none;}}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative; min-height:92vh; display:flex; align-items:flex-end;
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 60%, #232f45 100%);
+    overflow:hidden;
+  }
+  .hero-video{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;
+  }
+  .hero-overlay{
+    position:absolute; inset:0; z-index:1;
+    background:linear-gradient(180deg, rgba(16,24,38,0.55) 0%, rgba(16,24,38,0.35) 45%, rgba(16,24,38,0.92) 100%);
+  }
+  .hero-video-note{display:none;}
+  .hero-content{position:relative; z-index:2; padding:80px 0 72px;}
+  .hero h1{
+    color:var(--text-on-ink); font-size:clamp(38px, 6vw, 68px); line-height:1.05;
+    max-width:820px; opacity:0; transform:translateY(14px);
+    animation:rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s forwards;
+  }
+  .hero p.sub{
+    color:var(--text-on-ink-muted); font-size:19px; max-width:560px; margin-top:22px;
+    opacity:0; transform:translateY(14px);
+    animation:rise 0.9s cubic-bezier(.2,.7,.2,1) 0.35s forwards;
+  }
+  .hero-ctas{display:flex; gap:16px; margin-top:36px; flex-wrap:wrap;
+    opacity:0; transform:translateY(14px);
+    animation:rise 0.9s cubic-bezier(.2,.7,.2,1) 0.5s forwards;
+  }
+  @keyframes rise{to{opacity:1; transform:translateY(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .hero h1,.hero p.sub,.hero-ctas{animation:none; opacity:1; transform:none;}
+  }
+  .btn{
+    display:inline-flex; align-items:center; padding:14px 26px; font-size:15px; font-weight:500;
+    border-radius:2px; transition:transform 0.15s ease, background 0.15s ease;
+  }
+  .btn:focus-visible, a:focus-visible, button:focus-visible{outline:2px solid var(--emerald); outline-offset:2px;}
+  .btn-primary{background:var(--emerald); color:#fff;}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-ghost{border:1px solid var(--line-dark); color:var(--text-on-ink);}
+  .btn-ghost:hover{background:rgba(255,255,255,0.06);}
+
+  /* ---------- Section shell ---------- */
+  section{padding:110px 0;}
+  .section-head{max-width:640px; margin-bottom:64px;}
+  .section-head h2{font-size:clamp(28px,3.4vw,40px); color:var(--text-on-paper);}
+  .section-head p{color:var(--text-muted); font-size:17px; margin-top:14px;}
+
+  /* ---------- Cómo funciona (secuencia real -> numerada) ---------- */
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:40px;}
+  @media(max-width:800px){.steps{grid-template-columns:1fr;}}
+  .step{border-top:1px solid var(--line); padding-top:22px;}
+  .step .num{font-family:'Fraunces', serif; font-size:15px; color:var(--copper);}
+  .step h3{font-size:21px; margin-top:10px; color:var(--text-on-paper);}
+  .step p{color:var(--text-muted); margin-top:10px; font-size:15px;}
+
+  /* ---------- Ventajas — bloques alternados ---------- */
+  .adv{background:var(--paper-dim);}
+  .adv-row{display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; padding:56px 0;}
+  .adv-row:not(:last-child){border-bottom:1px solid var(--line);}
+  .adv-row.reverse .adv-media{order:2;}
+  @media(max-width:800px){
+    .adv-row, .adv-row.reverse .adv-media{grid-template-columns:1fr; order:0;}
+    .adv-row{grid-template-columns:1fr;}
+  }
+  .adv-media{
+    aspect-ratio:4/3; border-radius:4px; overflow:hidden;
+  }
+  .adv-media img{width:100%; height:100%; object-fit:cover; display:block;}
+  .adv-text .tag{font-size:13px; color:var(--emerald); font-weight:600;}
+  .adv-text h3{font-size:28px; margin-top:10px; color:var(--text-on-paper);}
+  .adv-text p{color:var(--text-muted); margin-top:14px; font-size:16px; max-width:440px;}
+
+  /* ---------- Seguridad (bloque oscuro, tono serio) ---------- */
+  .security{background:var(--ink); color:var(--text-on-ink);}
+  .security .section-head h2{color:var(--text-on-ink);}
+  .security .section-head p{color:var(--text-on-ink-muted);}
+  .sec-grid{display:flex; flex-wrap:wrap; gap:1px; background:var(--line-dark); border:1px solid var(--line-dark);}
+  .sec-grid .sec-item{flex:1 1 230px;}
+  .sec-item{background:var(--ink); padding:32px;}
+  .sec-item h4{font-size:17px; font-weight:500; color:var(--text-on-ink); font-family:'IBM Plex Sans';}
+  .sec-item p{color:var(--text-on-ink-muted); font-size:14.5px; margin-top:10px;}
+
+  /* ---------- Precios ---------- */
+  .pricing-table{width:100%; border-collapse:collapse; margin-top:8px;}
+  .pricing-table th, .pricing-table td{text-align:left; padding:16px 18px; border-bottom:1px solid var(--line); font-size:15px;}
+  .pricing-table th{color:var(--text-muted); font-weight:500; font-size:13px;}
+  .pricing-table td.price{font-family:'Fraunces', serif; font-size:18px;}
+  .pricing-note{color:var(--text-muted); font-size:14px; margin-top:18px;}
+
+  /* ---------- Contacto ---------- */
+  .contact-wrap{display:grid; grid-template-columns:1fr 1fr; gap:64px;}
+  @media(max-width:800px){.contact-wrap{grid-template-columns:1fr;}}
+  .price-anchor{
+    font-family:'Fraunces', serif; font-size:34px; color:var(--text-on-paper); margin-top:6px;
+  }
+  .price-anchor span{font-size:16px; font-family:'IBM Plex Sans'; color:var(--text-muted); font-weight:400;}
+  .whatsapp-btn{
+    display:inline-flex; align-items:center; gap:10px; margin-top:24px;
+    background:#1f8a52; color:#fff; padding:13px 22px; border-radius:2px; font-size:15px; font-weight:500;
+  }
+  form.contact-form{display:flex; flex-direction:column; gap:14px;}
+  form.contact-form label{font-size:13px; color:var(--text-muted); margin-bottom:4px; display:block;}
+  form.contact-form input, form.contact-form select, form.contact-form textarea{
+    width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:2px;
+    background:#fff; font-family:'IBM Plex Sans'; font-size:15px; color:var(--text-on-paper);
+  }
+  form.contact-form textarea{min-height:90px; resize:vertical;}
+  form.contact-form button{
+    margin-top:6px; align-self:flex-start; background:var(--ink); color:var(--text-on-ink);
+    padding:13px 26px; border:none; border-radius:2px; font-size:15px; font-weight:500; cursor:pointer;
+    font-family:'IBM Plex Sans';
+  }
+
+  /* ---------- Cobertura nacional ---------- */
+  .coverage{background:var(--paper-dim);}
+  .coverage-inner{display:flex; align-items:center; gap:56px; flex-wrap:wrap;}
+  .coverage-map{
+    flex:1; min-width:260px; aspect-ratio:4/3; border-radius:4px; overflow:hidden;
+  }
+  .coverage-map img{width:100%; height:100%; object-fit:cover; display:block;}
+  .coverage-text{flex:1; min-width:260px;}
+
+  /* ---------- Floating WhatsApp ---------- */
+  .wa-float{
+    position:fixed; bottom:26px; right:26px; z-index:60;
+    background:#1f8a52; color:#fff; width:56px; height:56px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,0,0,0.25);
+    font-size:26px;
+  }
+  .wa-float:hover{transform:scale(1.05);}
+
+  /* ---------- Blog teaser ---------- */
+  .blog{background:var(--paper-dim);}
+  .blog-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:36px; align-items:start;}
+  @media(max-width:800px){.blog-grid{grid-template-columns:1fr;}}
+  .post-more{display:none; margin-top:14px; font-size:14.5px; color:var(--text-on-paper);}
+  .post-more.open{display:block;}
+  .post-more h4{font-size:15px; font-family:'IBM Plex Sans'; font-weight:600; margin-top:16px; margin-bottom:6px;}
+  .post-more p{color:var(--text-muted); margin-top:0; font-size:14.5px;}
+  .post-toggle{
+    margin-top:12px; width:30px; height:30px; border-radius:50%; border:1px solid var(--line);
+    background:transparent; font-size:16px; line-height:1; cursor:pointer; color:var(--text-on-paper);
+  }
+  .post-toggle:hover{background:var(--paper);}
+  .post{border-top:1px solid var(--line); padding-top:18px;}
+  .post .cat{font-size:12.5px; color:var(--copper);}
+  .post h3{font-size:19px; margin-top:8px; color:var(--text-on-paper); font-weight:500;}
+  .post p{color:var(--text-muted); font-size:14.5px; margin-top:8px;}
+
+  /* ---------- Footer CTA ---------- */
+  footer{background:var(--ink); color:var(--text-on-ink); padding:90px 0 48px;}
+  .foot-cta h2{color:var(--text-on-ink); font-size:clamp(26px,3.6vw,38px); max-width:620px;}
+  .foot-cta p{color:var(--text-on-ink-muted); margin-top:14px; max-width:480px;}
+  .foot-cta .hero-ctas{margin-top:32px; animation:none; opacity:1; transform:none;}
+  .foot-bottom{
+    margin-top:80px; padding-top:24px; border-top:1px solid var(--line-dark);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    font-size:13px; color:var(--text-on-ink-muted);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="brand"><img src="assets/kora-icon.png" alt=""> Kora Access</span>
+    <div class="navlinks">
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#ventajas">Ventajas</a>
+      <a href="#seguridad">Seguridad</a>
+      <a href="#precios">Precios</a>
+      <a href="#blog">Blog</a>
+    </div>
+    <a href="#demo" class="nav-cta">Solicitar demo</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <video class="hero-video" autoplay muted loop playsinline poster="assets/hero-poster.jpg">
+    <source src="assets/hero-video.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <span class="hero-video-note">Reemplazar por video del flujo real (ver prompt sugerido)</span>
+  <div class="wrap hero-content">
+    <img class="hero-logo" src="assets/kora-icon.png" alt="Kora Access">
+    <h1>Un pase para entrar. Un registro de todo lo que pasa.</h1>
+    <p class="sub">Tus residentes generan el acceso desde el celular, tu caseta lo valida en segundos y tu comité tiene, por primera vez, un historial confiable de quién entró y cuándo — en cualquier condominio o fraccionamiento del país.</p>
+    <div class="hero-ctas">
+      <a href="#demo" class="btn btn-primary">Solicitar demo</a>
+      <a href="#precios" class="btn btn-ghost">Conocer precios</a>
+    </div>
+  </div>
+</header>
+
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Del celular a la caseta, en tres pasos</h2>
+      <p>El mismo flujo para cualquier tamaño de condominio o fraccionamiento.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>El residente genera el pase</h3>
+        <p>Nombre del visitante, domicilio y vigencia. Se envía por WhatsApp en segundos.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>El visitante lo presenta</h3>
+        <p>Sin instalar nada, sin crear cuenta. El código ya trae todo lo necesario.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Vigilancia valida y decide</h3>
+        <p>Un vistazo, un veredicto claro, el auto avanza.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="adv" id="ventajas">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Dos problemas, un mismo pase</h2>
+      <p>Pensado tanto para la seguridad del condominio como para la operación diaria de fraccionamientos grandes.</p>
+    </div>
+
+    <div class="adv-row">
+      <div class="adv-media"><img src="assets/sec-validacion.jpg" alt="Guardia validando un pase QR en una tablet, veredicto válido en verde"></div>
+      <div class="adv-text">
+        <div class="tag">Seguridad</div>
+        <h3>Cada pase, verificado</h3>
+        <p>Cambiar la hora, el domicilio o el nombre de un visitante invalida el código al instante. Un pase ya usado no vuelve a abrir la puerta — reenviarlo a alguien más no sirve de nada.</p>
+      </div>
+    </div>
+
+    <div class="adv-row reverse">
+      <div class="adv-media"><img src="assets/agilidad-entrada.jpg" alt="Vista aérea de la entrada de un fraccionamiento con autos ingresando sin fila"></div>
+      <div class="adv-text">
+        <div class="tag">Agilidad</div>
+        <h3>Menos fila en la entrada</h3>
+        <p>En un fraccionamiento con decenas de accesos por hora, cada auto que espera a que llamen al departamento es tiempo perdido para todos los que vienen detrás. Con el pase ya autorizado, vigilancia valida en segundos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="security" id="seguridad">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Cómo se protege cada pase</h2>
+      <p>Construido con tecnología de vanguardia — incluyendo inteligencia artificial aplicada a la detección de patrones — para estar siempre un paso adelante. Sustituir por el estado real (piloto / producción) antes de publicar.</p>
+    </div>
+    <div class="sec-grid">
+      <div class="sec-item">
+        <h4>Firma verificable</h4>
+        <p>Cada pase lleva una firma que detecta cualquier alteración de sus datos.</p>
+      </div>
+      <div class="sec-item">
+        <h4>Un solo uso</h4>
+        <p>Un pase ya usado no vuelve a abrir la puerta, aunque se reenvíe la captura.</p>
+      </div>
+      <div class="sec-item">
+        <h4>Funciona sin señal</h4>
+        <p>La caseta valida aunque no haya internet, sin renunciar a comprobar el pase.</p>
+      </div>
+      <div class="sec-item">
+        <h4>Análisis inteligente</h4>
+        <p>Un sistema de detección de patrones señala accesos fuera de lo común — como intentos repetidos o actividad inusual — para que la administración lo revise a tiempo.</p>
+      </div>
+      <div class="sec-item">
+        <h4>Reportes mensuales</h4>
+        <p>Cada mes enviamos a la administración un reporte visual y ejecutivo: accesos totales, autorizados vs. rechazados, horarios de mayor actividad y alertas relevantes — listo para presentar al comité, sin necesidad de armar tablas manualmente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="coverage">
+  <div class="wrap">
+    <div class="coverage-inner">
+      <div class="coverage-map"><img src="assets/cobertura-mexico.jpg" alt="Mapa de cobertura en la República Mexicana"></div>
+      <div class="coverage-text">
+        <h2 style="font-size:clamp(26px,3.2vw,34px);">Disponible en toda la República Mexicana</h2>
+        <p style="color:var(--text-muted); margin-top:16px; max-width:440px;">Funciona en el navegador del celular, sin instalación ni hardware especial — por eso se puede activar en condominios y fraccionamientos de cualquier ciudad del país, desde un edificio de 10 departamentos hasta un desarrollo residencial grande.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="precios">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Cotiza para tu condominio o fraccionamiento</h2>
+      <p>El precio depende del número de unidades — departamentos o casas. Cuéntanos de tu edificio o fraccionamiento y te armamos una cotización. Si administras varios condominios o fraccionamientos, tenemos un precio especial por volumen.</p>
+    </div>
+    <div class="contact-wrap">
+      <div>
+        <div class="price-anchor">Desde $2,000 <span>MXN + IVA / mes</span></div>
+        <p style="color:var(--text-muted); margin-top:14px; max-width:380px;">Aplica a condominios de hasta 20 unidades (departamentos o casas). Edificios y fraccionamientos más grandes: cotización según número de unidades. Administradoras con múltiples condominios: precio especial por volumen.</p>
+      </div>
+      <form class="contact-form" onsubmit="return false;">
+        <div>
+          <label for="nombre">Nombre</label>
+          <input id="nombre" type="text" placeholder="Tu nombre">
+        </div>
+        <div>
+          <label for="telefono">Teléfono o correo</label>
+          <input id="telefono" type="text" placeholder="¿Cómo te contactamos?">
+        </div>
+        <div>
+          <label for="deptos">Número de unidades (deptos o casas)</label>
+          <input id="deptos" type="number" placeholder="Ej. 40">
+        </div>
+        <div>
+          <label for="mensaje">Mensaje (opcional)</label>
+          <textarea id="mensaje" placeholder="Cuéntanos sobre tu condominio o fraccionamiento"></textarea>
+        </div>
+        <button type="submit">Solicitar cotización</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="blog" id="blog">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Del blog</h2>
+      <p>Seguridad residencial y administración de condominios.</p>
+    </div>
+    <div class="blog-grid">
+      <article class="post">
+        <div class="cat">Seguridad</div>
+        <h3>Qué hacer si la caseta retiene identificaciones</h3>
+        <p>Riesgos y alternativas más simples para controlar el acceso sin quedarte con documentos de terceros.</p>
+        <button class="post-toggle" onclick="const box=this.parentElement.querySelector('.post-more'); box.classList.toggle('open'); this.textContent = box.classList.contains('open') ? '−' : '+';" aria-expanded="false">+</button>
+        <div class="post-more">
+          <h4>¿Qué puede salir mal?</h4>
+          <p>Retener una identificación oficial (INE, licencia, pasaporte) coloca al condominio en una posición legal incómoda: la administración se convierte, sin quererlo, en depositaria de un documento oficial ajeno. Si el documento se pierde, se daña o se confunde con el de otro visitante, la responsabilidad recae sobre quien lo retuvo. Además, una identificación retenida no prueba nada por sí sola: no confirma que quien la entregó sea efectivamente quien dice ser, ni que esté autorizado por el residente correcto.</p>
+          <h4>El problema de fondo</h4>
+          <p>La retención de identificaciones intenta resolver un problema de confianza (¿esta persona está autorizada?) con una herramienta que no lo resuelve: un documento no dice si alguien fue invitado. Solo el residente sabe a quién espera, y cuándo.</p>
+          <h4>Una alternativa más simple</h4>
+          <p>La autorización debería originarse en quien tiene la información real: el residente. Cuando genera un pase digital con nombre, domicilio y vigencia antes de que la visita llegue, la caseta ya no necesita "confiar" en un documento físico — solo verificar que el pase es auténtico y está vigente. La identidad se coteja visualmente, sin retener nada.</p>
+          <h4>Qué buscar en un sistema de control de acceso</h4>
+          <p>Prioriza tres cosas: que la autorización nazca del residente y no de la caseta, que el sistema funcione aunque no haya internet (las casetas suelen tener mala señal), y que quede un registro auditable de quién entró, cuándo y autorizado por quién. Modernizar el acceso no significa agregar fricción: significa mover la decisión al momento correcto, antes de que la visita llegue.</p>
+        </div>
+      </article>
+
+      <article class="post">
+        <div class="cat">Diseño de interiores</div>
+        <h3>Cómo un buen lobby cambia la percepción de seguridad</h3>
+        <p>Luz, materiales y recorrido: lo que un residente siente al cruzar la entrada, antes de llegar a su puerta.</p>
+        <button class="post-toggle" onclick="const box=this.parentElement.querySelector('.post-more'); box.classList.toggle('open'); this.textContent = box.classList.contains('open') ? '−' : '+';" aria-expanded="false">+</button>
+        <div class="post-more">
+          <h4>El efecto de la primera impresión</h4>
+          <p>Un vestíbulo bien iluminado, con materiales cálidos y un recorrido claro desde la calle hasta los elevadores, comunica orden. Un residente que cruza un espacio limpio y bien pensado, con señalización clara de hacia dónde ir, siente que el edificio está cuidado — y un edificio que se percibe cuidado se percibe también más seguro, incluso antes de que exista evidencia objetiva de ello.</p>
+          <h4>Luz como herramienta de seguridad, no solo de estética</h4>
+          <p>La iluminación pareja, sin zonas de sombra cerca de accesos o pasillos, reduce puntos ciegos reales y también la sensación de vulnerabilidad. Conviene evitar contrastes extremos entre zonas muy iluminadas y zonas oscuras: el ojo tarda en adaptarse, y ese instante de ceguera parcial es justo lo que se busca evitar en un punto de acceso.</p>
+          <h4>El recorrido cuenta una historia</h4>
+          <p>Cuando el trayecto desde la caseta hasta la puerta del residente es legible, sin desvíos confusos y con vigilancia visible pero no invasiva, el visitante entiende que está siendo observado sin sentirse tratado como sospechoso. Ese balance es difícil de lograr solo con cámaras; se logra con diseño.</p>
+          <h4>Tecnología que no interrumpe la experiencia</h4>
+          <p>Un control de acceso digital bien integrado no debería sentirse como una barrera adicional en ese recorrido. Un pase que se valida en segundos, sin formularios ni documentos que entregar, mantiene la fluidez del espacio: la seguridad se vuelve invisible, en el buen sentido. Un buen lobby y un buen sistema de acceso persiguen lo mismo: que quien cruza la entrada sienta que el edificio sabe lo que hace.</p>
+        </div>
+      </article>
+
+      <article class="post">
+        <div class="cat">Estilo de vida residencial</div>
+        <h3>Vivir en condominio: lo que nadie te cuenta al mudarte</h3>
+        <p>De las reglas del comité a las visitas de fin de semana — la vida real dentro de un condominio o fraccionamiento.</p>
+        <button class="post-toggle" onclick="const box=this.parentElement.querySelector('.post-more'); box.classList.toggle('open'); this.textContent = box.classList.contains('open') ? '−' : '+';" aria-expanded="false">+</button>
+        <div class="post-more">
+          <h4>El reglamento es más presente de lo que crees</h4>
+          <p>Cada condominio tiene su propio reglamento interno: horarios de ruido, uso de áreas comunes, reglas para mascotas y, sí, también reglas para recibir visitas. La convivencia funciona mejor cuando todos entienden y respetan esas reglas, no solo cuando existen en un documento que nadie leyó.</p>
+          <h4>Las visitas son más frecuentes de lo que imaginas</h4>
+          <p>Entre repartidores, familiares, servicio de limpieza, mantenimiento y amigos, un hogar promedio recibe más visitas de las que uno esperaría antes de vivir en comunidad. Cada una de esas visitas pasa, en algún momento, por la caseta o la entrada principal: el punto donde la experiencia de vivir en condominio se siente más, para bien o para mal.</p>
+          <h4>El comité de vecinos: la política de tu edificio</h4>
+          <p>Cada condominio tiene, formal o informalmente, un grupo de vecinos que decide sobre gastos comunes, mejoras y reglas. Participar en esas decisiones, aunque sea ocasionalmente, cambia la experiencia de vivir ahí: de sentir que las reglas se imponen, a sentir que ayudaste a definirlas.</p>
+          <h4>La seguridad es responsabilidad compartida</h4>
+          <p>Ningún sistema de vigilancia reemplaza el hábito simple de no dejar la puerta abierta o de no compartir el código de acceso con quien no lo necesita. La tecnología ayuda — un pase que solo funciona para la visita y el horario correctos quita mucha carga mental — pero la convivencia sigue dependiendo de que cada residente haga su parte.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<footer id="demo">
+  <div class="wrap foot-cta">
+    <h2>Empecemos con tu condominio</h2>
+    <p>Agenda una demo de 15 minutos y te mostramos el flujo completo, de residente a caseta.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-primary">Solicitar demo</a>
+    </div>
+    <div class="foot-bottom wrap" style="padding:0;">
+      <span>© 2026 Kora Access. Control de acceso para condominios.</span>
+      <span>CDMX · Estado de México</span>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/5215500000000?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20el%20control%20de%20acceso%20QR" class="wa-float" aria-label="Escríbenos por WhatsApp">
+  <svg viewBox="0 0 32 32" width="28" height="28" fill="#fff" aria-hidden="true">
+    <path d="M16.02 3C9.4 3 4 8.4 4 15.02c0 2.2.58 4.28 1.68 6.13L4 29l8.03-1.63a12.9 12.9 0 0 0 4 .63h.01c6.62 0 12.02-5.4 12.02-12.02C28.06 8.4 22.66 3 16.02 3Zm0 21.9h-.01a10.9 10.9 0 0 1-5.55-1.52l-.4-.24-4.76.97 1-4.64-.26-.42a10.86 10.86 0 0 1-1.66-5.83c0-6 4.9-10.9 10.9-10.9 2.9 0 5.63 1.14 7.68 3.2a10.8 10.8 0 0 1 3.19 7.7c0 6-4.9 10.68-10.13 10.68Zm5.98-8.16c-.33-.16-1.94-.96-2.24-1.07-.3-.11-.52-.16-.74.16-.22.33-.85 1.07-1.04 1.29-.19.22-.38.24-.71.08-.33-.16-1.4-.51-2.66-1.63-.98-.87-1.65-1.95-1.84-2.28-.19-.33-.02-.5.14-.67.15-.15.33-.38.5-.57.16-.19.22-.33.33-.55.11-.22.05-.41-.03-.57-.08-.16-.74-1.77-1.01-2.42-.27-.64-.54-.55-.74-.56h-.63c-.22 0-.57.08-.87.41-.3.33-1.14 1.11-1.14 2.72s1.17 3.16 1.33 3.38c.16.22 2.3 3.5 5.57 4.91.78.34 1.39.54 1.86.69.78.25 1.49.21 2.05.13.63-.09 1.94-.79 2.21-1.56.27-.76.27-1.42.19-1.56-.08-.14-.3-.22-.63-.38Z"/>
+  </svg>
+</a>
+
+<script>
+  const heroVideo = document.querySelector('.hero-video');
+  if (heroVideo) {
+    heroVideo.play().catch(() => {
+      // Autoplay bloqueado por el navegador/entorno — el poster se queda visible.
+    });
+  }
+</script>
+
+</body>
+</html>
